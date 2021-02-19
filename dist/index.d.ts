@@ -1,7 +1,7 @@
 import { PipelineOptions } from "@azure/core-https";
 import { KeyCredential, TokenCredential } from "@azure/core-auth";
 import { AnalyzeParameters, AnalyzeStatusParameters, HealthStatusParameters, HealthParameters, EntitiesRecognitionGeneralParameters, EntitiesRecognitionPiiParameters, EntitiesLinkingParameters, KeyPhrasesParameters, LanguagesParameters, SentimentParameters, CancelHealthJobParameters, RequestParameters } from "./parameters";
-import { Analyze202Response, Analyze400Response, Analyze500Response, AnalyzeStatus200Response, AnalyzeStatus404Response, AnalyzeStatus500Response, HealthStatus200Response, HealthStatus404Response, HealthStatus500Response, CancelHealthJob202Response, CancelHealthJob404Response, CancelHealthJob500Response, Health202Response, Health400Response, Health500Response, EntitiesRecognitionGeneral200Response, EntitiesRecognitionGeneral400Response, EntitiesRecognitionGeneral500Response, EntitiesRecognitionPii200Response, EntitiesRecognitionPii400Response, EntitiesRecognitionPii500Response, EntitiesLinking200Response, EntitiesLinking400Response, EntitiesLinking500Response, KeyPhrases200Response, KeyPhrases400Response, KeyPhrases500Response, Languages200Response, Languages400Response, Languages500Response, Sentiment200Response, Sentiment400Response, Sentiment500Response, PipelineResponse } from "./responses";
+import { Analyze202Response, Analyze400Response, Analyze500Response, AnalyzeStatus200Response, AnalyzeStatus404Response, AnalyzeStatus500Response, HealthStatus200Response, HealthStatus404Response, HealthStatus500Response, CancelHealthJob202Response, CancelHealthJob404Response, CancelHealthJob500Response, Health202Response, Health400Response, Health500Response, EntitiesRecognitionGeneral200Response, EntitiesRecognitionGeneral400Response, EntitiesRecognitionGeneral500Response, EntitiesRecognitionPii200Response, EntitiesRecognitionPii400Response, EntitiesRecognitionPii500Response, EntitiesLinking200Response, EntitiesLinking400Response, EntitiesLinking500Response, KeyPhrases200Response, KeyPhrases400Response, KeyPhrases500Response, Languages200Response, Languages400Response, Languages500Response, Sentiment200Response, Sentiment400Response, Sentiment500Response, RequestUncheckedResponse } from "./responses";
 /**
  * Definition of each operation to help building their types
  */
@@ -104,7 +104,7 @@ declare type Request = {
  * It als adds an optional options bag to provide a body, queryParameters or headers
  */
 declare type RequestUnchecked = {
-    <T extends string>(route: T, ...args: RequestUncheckedArgs<T>): Promise<PipelineResponse>;
+    <T extends string>(route: T, ...args: RequestUncheckedArgs<T>): Promise<RequestUncheckedResponse>;
 };
 /**
  * Interface that defines the TextAnalytics client

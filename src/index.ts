@@ -54,7 +54,7 @@ import {
   Sentiment200Response,
   Sentiment400Response,
   Sentiment500Response,
-  PipelineResponse,
+  RequestUncheckedResponse,
 } from "./responses";
 import {
   createDefaultPipeline,
@@ -228,7 +228,7 @@ type RequestUnchecked = {
   <T extends string>(
     route: T,
     ...args: RequestUncheckedArgs<T>
-  ): Promise<PipelineResponse>;
+  ): Promise<RequestUncheckedResponse>;
 };
 
 /**

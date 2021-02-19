@@ -22,6 +22,10 @@ export type PipelineResponse = PipelineResponseInternal & {
   body: unknown;
 };
 
+export type RequestUncheckedResponse = PipelineResponse & {
+  body?: any
+}
+
 export type Analyze202Response = Analyze202Properties & PipelineResponse;
 
 interface Analyze202Properties {

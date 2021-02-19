@@ -6,6 +6,9 @@ interface Analyze202Headers {
 export declare type PipelineResponse = PipelineResponseInternal & {
     body: unknown;
 };
+export declare type RequestUncheckedResponse = PipelineResponse & {
+    body?: any;
+};
 export declare type Analyze202Response = Analyze202Properties & PipelineResponse;
 interface Analyze202Properties {
     status: 202;
