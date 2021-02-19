@@ -2,8 +2,7 @@
 
 ### Install
 ```bash
-npm install --save https://github.com/joheredi/ta-lowlevel-prototype
-npm install --save @azure/identity
+npm install https://github.com/joheredi/ta-lowlevel-prototype @azure/identity
 ```
 
 ### Initialize a client
