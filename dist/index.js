@@ -122,7 +122,6 @@ function buildRequestUrl(baseUrl, routePath, pathParameters, options = {}) {
     const url = new URL(`${baseUrl}/${path}`);
     if (options.queryParameters) {
         const queryParams = options.queryParameters;
-        queryParams["model-version"];
         for (const key of Object.keys(queryParams)) {
             url.searchParams.append(key, queryParams[key]);
         }

@@ -1,5 +1,5 @@
 import { PipelineOptions } from "@azure/core-https";
-import { TokenCredential } from "@azure/core-auth";
+import { KeyCredential, TokenCredential } from "@azure/core-auth";
 import { AnalyzeParameters, AnalyzeStatusParameters, HealthStatusParameters, HealthParameters, EntitiesRecognitionGeneralParameters, EntitiesRecognitionPiiParameters, EntitiesLinkingParameters, KeyPhrasesParameters, LanguagesParameters, SentimentParameters, CancelHealthJobParameters, RequestParameters } from "./parameters";
 import { Analyze202Response, Analyze400Response, Analyze500Response, AnalyzeStatus200Response, AnalyzeStatus404Response, AnalyzeStatus500Response, HealthStatus200Response, HealthStatus404Response, HealthStatus500Response, CancelHealthJob202Response, CancelHealthJob404Response, CancelHealthJob500Response, Health202Response, Health400Response, Health500Response, EntitiesRecognitionGeneral200Response, EntitiesRecognitionGeneral400Response, EntitiesRecognitionGeneral500Response, EntitiesRecognitionPii200Response, EntitiesRecognitionPii400Response, EntitiesRecognitionPii500Response, EntitiesLinking200Response, EntitiesLinking400Response, EntitiesLinking500Response, KeyPhrases200Response, KeyPhrases400Response, KeyPhrases500Response, Languages200Response, Languages400Response, Languages500Response, Sentiment200Response, Sentiment400Response, Sentiment500Response, PipelineResponse } from "./responses";
 /**
@@ -113,7 +113,7 @@ export interface TextAnalyticsClient {
     request: Request;
     requestUnchecked: RequestUnchecked;
 }
-declare function createTextAnalyticsClient(credentials: TokenCredential, Endpoint: string, options?: PipelineOptions): TextAnalyticsClient;
+declare function createTextAnalyticsClient(credentials: TokenCredential | KeyCredential, Endpoint: string, options?: PipelineOptions): TextAnalyticsClient;
 export default createTextAnalyticsClient;
 export * from "./models";
 export * from "./parameters";
