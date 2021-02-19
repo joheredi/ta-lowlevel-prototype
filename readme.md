@@ -1,5 +1,8 @@
 ## Text Analytics Low Level Client
 
+Prototype for Text Analytics that's a general REST client combined with service-specific TypeScript types to help navigate and use the [REST API][rest_api] directly. 
+
+
 ### Install
 ```bash
 npm install https://github.com/joheredi/ta-lowlevel-prototype @azure/identity
@@ -138,3 +141,4 @@ analyzeLanguage().catch(console.error)
 [azure_identity]: https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/identity/identity
 [register_aad_app]: https://docs.microsoft.com/azure/cognitive-services/authentication#assign-a-role-to-a-service-principal
 [defaultazurecredential]: https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/identity/identity#defaultazurecredential
+[rest_api]: https://westus2.dev.cognitive.microsoft.com/docs/services/TextAnalytics-v3-1-preview-3/
