@@ -41,7 +41,7 @@ Once you have an API key and endpoint, you can use the `AzureKeyCredential` clas
 ```js
 import TextAnalytics from "@azure/textanalytics-lowlevel";
 
-const client = TextAnalytics("<endpoint>", { key: "<API key>" });
+const client = TextAnalytics({ key: "<API key>" }, "<endpoint>");
 ```
 
 #### Using an Azure Active Directory Credential
@@ -57,7 +57,7 @@ Set the values of the client ID, tenant ID, and client secret of the AAD applica
 import TextAnalytics from "@azure/textanalytics-lowlevel";
 import { DefaultAzureCredential } from "@azure/identity";
 
-const client = TextAnalytics("<endpoint>", new DefaultAzureCredential());
+const client = TextAnalytics(new DefaultAzureCredential(), "<endpoint>");
 ```
 
 
