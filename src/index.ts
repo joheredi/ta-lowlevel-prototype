@@ -5,7 +5,7 @@ import {
   HttpMethods,
   Pipeline,
 } from "@azure/core-https";
-import { TokenCredential } from "@azure/core-auth";
+import { KeyCredential, TokenCredential } from "@azure/core-auth";
 import {
   AnalyzeParameters,
   AnalyzeStatusParameters,
@@ -239,7 +239,7 @@ export interface TextAnalyticsClient {
   requestUnchecked: RequestUnchecked;
 }
 function createTextAnalyticsClient(
-  credentials: TokenCredential,
+  credentials: TokenCredential | KeyCredential,
   Endpoint: string,
   options?: PipelineOptions
 ): TextAnalyticsClient {
@@ -410,7 +410,6 @@ function buildRequestUrl<R extends keyof Routes>(
 
   if (options.queryParameters) {
     const queryParams = options.queryParameters;
-    queryParams["model-version"]
     for (const key of Object.keys(queryParams)) {
       url.searchParams.append(key, (queryParams as any)[key]);
     }
