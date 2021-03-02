@@ -1,9 +1,9 @@
 ## Text Analytics Low Level Client
 
-Prototype for Text Analytics that's a general REST client combined with service-specific TypeScript types to help navigate and use the [REST API][rest_api] directly. 
-
+Prototype for Text Analytics that's a general REST client combined with service-specific TypeScript types to help navigate and use the [REST API][rest_api] directly.
 
 ### Install
+
 ```bash
 npm install https://github.com/joheredi/ta-lowlevel-prototype @azure/identity
 ```
@@ -57,26 +57,72 @@ You will also need to [register a new AAD application][register_aad_app] and gra
 Set the values of the client ID, tenant ID, and client secret of the AAD application as environment variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`.
 
 ```js
-import TextAnalytics from "@azure/textanalytics-lowlevel";
+// import {createTextAnalyticsVerbFirst as TextAnalytics} from "@azure/-lowlevel";
+import { createTextAnalyticsPathFirst as TextAnalytics } from "@azure/textanalytics-lowlevel";
 import { DefaultAzureCredential } from "@azure/identity";
 
 const client = TextAnalytics(new DefaultAzureCredential(), "<endpoint>");
 ```
 
+### Samples with Path First
 
-### Samples
 #### Call an endpoint
 
 ```typescript
-import TextAnalytics from "@azure/textanalytics-lowlevel";
+import {
+  createTextAnalyticsPathFirst as TextAnalytics,
+  TextDocumentInput,
+} from "@azure/textanalytics-lowlevel";
 
-const endpoint = "https://<accountName>.cognitiveservices.azure.com"
+const endpoint = "https://<accountName>.cognitiveservices.azure.com/";
+const key = process.env["API_KEY"] || "<API KEY>";
+
+const documents: TextDocumentInput[] = [
+  { id: "1", text: "This is my fake SSN 22-333-4444" },
+];
+
+async function analyzeText() {
+  const client = TextAnalytics({ key }, endpoint);
+
+  const recognitionClient = client("/entities/recognition").subclient;
+  const piiClient = recognitionClient("/pii");
+  const generalRecognitionClient = recognitionClient("/general");
+
+  const piiResult = await piiClient.post({ body: { documents } });
+  const generalResult = await generalRecognitionClient.post({
+    body: { documents },
+  });
+  console.log(piiResult);
+  if (piiResult.status === 200) {
+    console.log(`=== PII Results ===`);
+    for (const doc of piiResult.body.documents) {
+      console.log(`Redated Text: ${doc.redactedText}`);
+    }
+  }
+
+  if (generalResult.status === 200) {
+    console.log(`=== General Results ===`);
+    for (const doc of generalResult.body.documents) {
+      console.log(`${JSON.stringify(doc.entities)}`);
+    }
+  }
+}
+
+analyzeText().catch(console.error);
+```
+
+### Samples with Verb First
+
+#### Call an endpoint
+
+```typescript
+import { createTextAnalyticsVerbFirst as TextAnalytics } from "@azure/textanalytics-lowlevel";
+
+const endpoint = "https://<accountName>.cognitiveservices.azure.com";
+const key = process.env["API_KEY"] || "<API KEY>";
 
 async function analyzeLanguage() {
-const client = TextAnalytics(
-    { key: "<API key>" },
-    endpoint
-  );
+  const client = TextAnalytics({ key }, endpoint);
 
   const languagesResult = await client.request("POST /languages", {
     body: { documents: [{ id: "1", text: "This is a test text" }] },
@@ -95,23 +141,19 @@ const client = TextAnalytics(
   }
 }
 
-analyzeLanguage().catch(console.error)
-
+analyzeLanguage().catch(console.error);
 ```
 
 ### Call an arbitrary endpoint with requestUnchecked
 
-
 ```typescript
-import TextAnalytics from "@azure/textanalytics-lowlevel";
+import { createTextAnalyticsVerbFirst as TextAnalytics } from "@azure/textanalytics-lowlevel";
 
-const endpoint = "https://<accountName>.cognitiveservices.azure.com"
+const endpoint = "https://<accountName>.cognitiveservices.azure.com";
+const key = process.env["API_KEY"] || "<API KEY>";
 
 async function analyzeLanguage() {
-const client = TextAnalytics(
-    { key: "<API key>" },
-    endpoint
-  );
+  const client = TextAnalytics({ key }, endpoint);
 
   const languagesResult = await client.requestUnchecked("POST /languages", {
     body: { documents: [{ id: "1", text: "This is a test text" }] },
@@ -130,8 +172,7 @@ const client = TextAnalytics(
   }
 }
 
-analyzeLanguage().catch(console.error)
-
+analyzeLanguage().catch(console.error);
 ```
 
 [azure_cli]: https://docs.microsoft.com/cli/azure

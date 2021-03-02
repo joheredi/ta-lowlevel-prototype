@@ -181,3 +181,4 @@ interface Sentiment500Properties {
     body: ErrorResponse;
 }
 export {};
+//# sourceMappingURL=responses.d.ts.map

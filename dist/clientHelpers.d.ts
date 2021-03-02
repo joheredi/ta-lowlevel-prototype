@@ -7,3 +7,4 @@ export declare function getCachedDefaultHttpsClient(): HttpsClient;
  */
 export declare const keyCredentialAuthenticationPolicyName = "keyCredentialAuthenticationPolicy";
 export declare function keyCredentialAuthenticationPolicy(credential: KeyCredential): PipelinePolicy;
+//# sourceMappingURL=clientHelpers.d.ts.map
