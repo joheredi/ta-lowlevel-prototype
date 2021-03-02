@@ -57,7 +57,7 @@ You will also need to [register a new AAD application][register_aad_app] and gra
 Set the values of the client ID, tenant ID, and client secret of the AAD application as environment variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`.
 
 ```js
-// import {createTextAnalyticsVerbFirst as TextAnalytics} from "@azure/-lowlevel";
+// import {createTextAnalyticsVerbFirst as TextAnalytics} from "@azure/textanalytics-lowlevel";
 import { createTextAnalyticsPathFirst as TextAnalytics } from "@azure/textanalytics-lowlevel";
 import { DefaultAzureCredential } from "@azure/identity";
 
