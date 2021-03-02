@@ -42,7 +42,7 @@ az cognitiveservices account keys list --resource-group <your-resource-group-nam
 Once you have an API key and endpoint, you can use the `AzureKeyCredential` class to authenticate the client as follows:
 
 ```js
-import TextAnalytics from "@azure/textanalytics-lowlevel";
+import { createTextAnalyticsVerbFirst as TextAnalytics } from "@azure/textanalytics-lowlevel";
 
 const client = TextAnalytics({ key: "<API key>" }, "<endpoint>");
 ```
