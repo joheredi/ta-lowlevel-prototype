@@ -82,28 +82,50 @@ const documents: TextDocumentInput[] = [
 ];
 
 async function analyzeText() {
+  // Create the text analytics client
   const client = TextAnalytics({ key }, endpoint);
 
-  const recognitionClient = client("/entities/recognition").subclient;
-  const piiClient = recognitionClient("/pii");
-  const generalRecognitionClient = recognitionClient("/general");
+  // Get subclients for PII and General Recognition
+  const piiClient = client.path("/entities/recognition/pii");
 
+  // You can also use pathUnchecked to send a request to an arbitrary path
+  const generalRecognitionClient = client.pathUnckecked(
+    "/entities/recognition/general"
+  );
+
+  // Call POST on pii subclient
   const piiResult = await piiClient.post({ body: { documents } });
+
+  // Call POST on general recognition subclient, since generalRecognitionClient was created
+  // using pathUnckecked all VERBS are available, you need to make sure that the service
+  // supports the VERB on the given path.
   const generalResult = await generalRecognitionClient.post({
     body: { documents },
   });
-  console.log(piiResult);
+
   if (piiResult.status === 200) {
     console.log(`=== PII Results ===`);
     for (const doc of piiResult.body.documents) {
       console.log(`Redated Text: ${doc.redactedText}`);
     }
+    // === PII Results ===
+    // Redated Text: This is my phone number ************
   }
 
   if (generalResult.status === 200) {
     console.log(`=== General Results ===`);
     for (const doc of generalResult.body.documents) {
-      console.log(`${JSON.stringify(doc.entities)}`);
+      console.log(`### Recognition Results for Document: ${doc.id}`);
+      for (const entity of doc.entities) {
+        console.log(
+          `${entity.text} => ${entity.category} (${
+            entity.confidenceScore * 100
+          }%)`
+        );
+        // === General Results ===
+        // ### Recognition Results for Document: 1
+        // 000-111-2233 => Phone Number (80%)
+      }
     }
   }
 }

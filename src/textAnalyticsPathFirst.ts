@@ -55,6 +55,7 @@ import {
   HttpMethods,
   Pipeline,
   PipelineOptions,
+  PipelineResponse,
 } from "@azure/core-https";
 import {
   createDefaultPipeline,
@@ -124,7 +125,7 @@ interface Routes {
       | EntitiesLinking500Response
     >;
   };
-  "POST /keyPhrases": {
+  "/keyPhrases": {
     post(
       options: KeyPhrasesParameters
     ): Promise<
@@ -147,22 +148,6 @@ interface Routes {
   };
 }
 
-type PathSegments<TRoutes> = AllPathSegments<keyof TRoutes>;
-type AllPathSegments<
-  TRoute
-> = TRoute extends `/${infer TBasePath}/${infer TSubPath}`
-  ? `/${TBasePath}` | `/${TBasePath}${AllPathSegments<`/${TSubPath}`>}`
-  : TRoute;
-
-type SubRoutes<
-  AvailableRoutes,
-  SelectedRoute extends string
-> = AvailableRoutes extends `${SelectedRoute}${infer Tail}`
-  ? "" extends Tail
-    ? never
-    : Tail
-  : never;
-
 type RouteParams<
   TRoute extends string
 > = TRoute extends `:${infer _Param}/${infer Tail}`
@@ -173,75 +158,108 @@ type RouteParams<
   ? RouteParams<`:${Tail}`>
   : [];
 
-export type TextAnalyticsPathFirst<
-  Prefix extends string,
-  AvailableRoutes,
-  SelectedRoute extends string
-> = {
-  subclient(): TextAnalyticsPathFirst<
-    `${Prefix}${SelectedRoute}`,
-    SubRoutes<AvailableRoutes, SelectedRoute>,
-    ""
-  >;
-  subclient<T extends SubRoutes<AvailableRoutes, SelectedRoute>>(
-    s: T,
-    ...pathParams: RouteParams<T>
-  ): TextAnalyticsPathFirst<
-    `${Prefix}${SelectedRoute}`,
-    SubRoutes<AvailableRoutes, SelectedRoute>,
-    T
-  >;
-} & (`${Prefix}${SelectedRoute}` extends keyof Routes
-  ? Routes[`${Prefix}${SelectedRoute}`]
-  : {});
+type PathClient = <T extends keyof Routes>(
+  path: T,
+  ...args: RouteParams<T>
+) => PathReturn<T>;
 
-export function createTextAnalyticsPathFirst(
-  credentials: TokenCredential | KeyCredential,
-  Endpoint: string,
+type PathUncheckedResponse = PipelineResponse & { body: any };
+
+type PathUnchecked = <T extends string>(
+  path: T,
+  ...args: RouteParams<T>
+) => {
+  post(options: LanguagesParameters): Promise<PathUncheckedResponse>;
+  put(options: LanguagesParameters): Promise<PathUncheckedResponse>;
+  patch(options: LanguagesParameters): Promise<PathUncheckedResponse>;
+  get(options: LanguagesParameters): Promise<PathUncheckedResponse>;
+  delete(options: LanguagesParameters): Promise<PathUncheckedResponse>;
+};
+
+export type TextAnalyticsPathFirst = (
+  creds: TokenCredential | KeyCredential,
+  endpoint: string,
   options?: PipelineOptions
-): TextAnalyticsPathFirst<"", PathSegments<Routes>, "">["subclient"] {
+) => {
+  // Path can take path parameter that matches any of the leaf paths in Routes
+  path: PathClient;
+  pathUnckecked: PathUnchecked;
+};
+
+/**
+ * Path return contains subclients if there are any subpaths available
+ * Plus all the verbs supported by the path
+ */
+type PathReturn<T extends keyof Routes> = AllSubPaths<T> extends never
+  ? Routes[T]
+  : {
+      subClient: <SubPath extends AllSubPaths<T>>(
+        subPath: SubPath,
+        ...args: RouteParams<SubPath>
+      ) => `${T}${SubPath}` extends keyof Routes
+        ? PathReturn<`${T}${SubPath}`>
+        : never;
+    } & Routes[T];
+
+/** Gets all leaf nodes starting from BasePath */
+type AllSubPaths<BasePath extends keyof Routes> = HasSubPaths<
+  BasePath,
+  keyof Routes
+>;
+type HasSubPaths<
+  BasePath extends keyof Routes,
+  LeafRoutes extends keyof Routes
+> = LeafRoutes extends `${BasePath}/${infer SubRoute}` ? `/${SubRoute}` : never;
+
+export const createTextAnalyticsPathFirst: TextAnalyticsPathFirst = (
+  credentials,
+  endpoint,
+  options?: PipelineOptions
+) => {
   const baseUrl = "{Endpoint}/text/analytics/v3.1-preview.3".replace(
     /{Endpoint}/g,
-    Endpoint
+    endpoint
   );
 
   const pipeline = createDefaultPipeline(credentials, options);
   pipeline.removePolicy({ name: "exponentialRetryPolicy" });
-
-  const createSubClient = (mainPath: string) => (
-    subPath?: string,
-    ...pathParams
+  const client: PathClient = <T extends keyof Routes>(
+    path: T,
+    ...args: RouteParams<T>
   ) => {
-    let aggregateParams = [];
-    let newPath = mainPath;
-
-    if (pathParams && pathParams.length) {
-      aggregateParams = [...aggregateParams, ...pathParams];
-    }
-
-    if (subPath) {
-      newPath = `${mainPath}${subPath}`;
-    }
-    const subClient = createSubClient(newPath);
-    return {
+    return ({
+      subClient: (subPath, ...subPathArgs) => {
+        const subClientPath = `${path}${subPath}` as any;
+        return client(subClientPath, [...args, ...subPathArgs] as any);
+      },
       get: (options: RequestParameters = {}) => {
-        const url = buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+        const url = buildRequestUrl(baseUrl, path, args, options);
         return sendRequest("GET", url, pipeline, options);
       },
       post: (options: RequestParameters = {}) => {
-        const url = buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+        const url = buildRequestUrl(baseUrl, path, args, options);
         return sendRequest("POST", url, pipeline, options);
       },
+      put: (options: RequestParameters = {}) => {
+        const url = buildRequestUrl(baseUrl, path, args, options);
+        return sendRequest("PUT", url, pipeline, options);
+      },
+      patch: (options: RequestParameters = {}) => {
+        const url = buildRequestUrl(baseUrl, path, args, options);
+        return sendRequest("PATCH", url, pipeline, options);
+      },
       delete: (options: RequestParameters = {}) => {
-        const url = buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+        const url = buildRequestUrl(baseUrl, path, args, options);
         return sendRequest("DELETE", url, pipeline, options);
       },
-      subclient: subClient,
-    };
+    } as unknown) as PathReturn<T>;
   };
 
-  return createSubClient("") as any;
-}
+  return {
+    path: client,
+    pathUnckecked: client as any,
+  };
+};
 
 async function sendRequest(
   method: HttpMethods,

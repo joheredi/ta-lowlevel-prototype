@@ -13,38 +13,43 @@ exports.createTextAnalyticsPathFirst = void 0;
 const urlHelpers_1 = require("./urlHelpers");
 const core_https_1 = require("@azure/core-https");
 const clientHelpers_1 = require("./clientHelpers");
-function createTextAnalyticsPathFirst(credentials, Endpoint, options) {
-    const baseUrl = "{Endpoint}/text/analytics/v3.1-preview.3".replace(/{Endpoint}/g, Endpoint);
+const createTextAnalyticsPathFirst = (credentials, endpoint, options) => {
+    const baseUrl = "{Endpoint}/text/analytics/v3.1-preview.3".replace(/{Endpoint}/g, endpoint);
     const pipeline = clientHelpers_1.createDefaultPipeline(credentials, options);
     pipeline.removePolicy({ name: "exponentialRetryPolicy" });
-    const createSubClient = (mainPath) => (subPath, ...pathParams) => {
-        let aggregateParams = [];
-        let newPath = mainPath;
-        if (pathParams && pathParams.length) {
-            aggregateParams = [...aggregateParams, ...pathParams];
-        }
-        if (subPath) {
-            newPath = `${mainPath}${subPath}`;
-        }
-        const subClient = createSubClient(newPath);
+    const client = (path, ...args) => {
         return {
+            subClient: (subPath, ...subPathArgs) => {
+                const subClientPath = `${path}${subPath}`;
+                return client(subClientPath, [...args, ...subPathArgs]);
+            },
             get: (options = {}) => {
-                const url = urlHelpers_1.buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+                const url = urlHelpers_1.buildRequestUrl(baseUrl, path, args, options);
                 return sendRequest("GET", url, pipeline, options);
             },
             post: (options = {}) => {
-                const url = urlHelpers_1.buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+                const url = urlHelpers_1.buildRequestUrl(baseUrl, path, args, options);
                 return sendRequest("POST", url, pipeline, options);
             },
+            put: (options = {}) => {
+                const url = urlHelpers_1.buildRequestUrl(baseUrl, path, args, options);
+                return sendRequest("PUT", url, pipeline, options);
+            },
+            patch: (options = {}) => {
+                const url = urlHelpers_1.buildRequestUrl(baseUrl, path, args, options);
+                return sendRequest("PATCH", url, pipeline, options);
+            },
             delete: (options = {}) => {
-                const url = urlHelpers_1.buildRequestUrl(baseUrl, newPath, aggregateParams, options);
+                const url = urlHelpers_1.buildRequestUrl(baseUrl, path, args, options);
                 return sendRequest("DELETE", url, pipeline, options);
             },
-            subclient: subClient,
         };
     };
-    return createSubClient("");
-}
+    return {
+        path: client,
+        pathUnckecked: client,
+    };
+};
 exports.createTextAnalyticsPathFirst = createTextAnalyticsPathFirst;
 function sendRequest(method, url, pipeline, options) {
     return __awaiter(this, void 0, void 0, function* () {
